@@ -18,7 +18,7 @@ const Dashboard = () => {
   const fetchBooksAndVote = async () => {
     try {
       // Fetch books
-      const bookResponse = await fetch('http://localhost:5000/books', {
+      const bookResponse = await fetch('https://audio-books-backend.vercel.app/books', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -27,7 +27,7 @@ const Dashboard = () => {
       setBooks(booksData);
 
       // Fetch user's vote
-      const voteResponse = await fetch(`http://localhost:5000/votes/${userId}`, {
+      const voteResponse = await fetch(`https://audio-books-backend.vercel.app/votes/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -48,7 +48,7 @@ const Dashboard = () => {
 
   const handleVote = async (bookId) => {
     try {
-		const response = await fetch(`http://localhost:5000/books/${bookId}/vote`, {
+		const response = await fetch(`https://audio-books-backend.vercel.app/books/${bookId}/vote`, {
 		  method: 'PUT',
 		  headers: {
 		    'Authorization': `Bearer ${token}`,

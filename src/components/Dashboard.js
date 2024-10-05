@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import BookCard from './BookCard';
 import Header from './Header';
 import { jwtDecode } from 'jwt-decode';
@@ -9,16 +9,37 @@ const Dashboard = () => {
   const token = localStorage.getItem('token');
   const [error, setError] = useState(false);
   
-  let userId = null;
-  if (token) {
-    const decodedToken = jwtDecode(token);
-    userId = decodedToken.sub; // Adjust the key based on your token structure
-  }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Function to open the modal when error occurs
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // Function to close the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setError(false);
+  };
+  
+  useEffect(() => {
+	  if (error) {
+		handleOpenModal();
+	  }
+  }, [error]);
+  
+  const userId = useMemo(() => {
+	  if (token) {
+		const decodedToken = jwtDecode(token);
+		return decodedToken.sub; // Adjust the key based on your token structure
+	  }
+	  return null;
+  }, [token]);
   
   const fetchBooksAndVote = async () => {
     try {
       // Fetch books
-      const bookResponse = await fetch('https://audio-books-backend.vercel.app/books', {
+      const bookResponse = await fetch('http://127.0.0.1:5000/books', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
@@ -27,15 +48,15 @@ const Dashboard = () => {
       setBooks(booksData);
 
       // Fetch user's vote
-      const voteResponse = await fetch(`https://audio-books-backend.vercel.app/votes/${userId}`, {
+      const voteResponse = await fetch(`http://127.0.0.1:5000/votes/${userId}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
       const voteData = await voteResponse.json();
-      
+
       if (voteData.book_id) {
-        setVotedBookId(voteData.book_id); // Set the voted book ID
+        setVotedBookId(voteData.book_id._id.$oid); // Set the voted book ID
       }
     } catch (error) {
       console.error("Error fetching books or vote:", error);
@@ -48,7 +69,7 @@ const Dashboard = () => {
 
   const handleVote = async (bookId) => {
     try {
-		const response = await fetch(`https://audio-books-backend.vercel.app/books/${bookId}/vote`, {
+		const response = await fetch(`http://127.0.0.1:5000/books/${bookId}/vote`, {
 		  method: 'PUT',
 		  headers: {
 		    'Authorization': `Bearer ${token}`,
@@ -71,6 +92,7 @@ const Dashboard = () => {
     localStorage.removeItem('token');
     window.location.href = '/'; // Redirect to the sign-in page
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-800 p-4 md:p-8">
@@ -87,6 +109,8 @@ const Dashboard = () => {
             onVote={handleVote}
             setVotedBookId={setVotedBookId}
             error={error}
+            isModalOpen={isModalOpen}
+            handleCloseModal={handleCloseModal}
             
           />
         )) : <p className="text-white">No Books Found</p>}

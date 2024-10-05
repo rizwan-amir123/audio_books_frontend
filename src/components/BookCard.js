@@ -1,4 +1,6 @@
-const BookCard = ({ key, book, votedBookId, onVote, setVotedBookId, error }) => {
+import Modal from './Modal';
+
+const BookCard = ({ key, book, votedBookId, onVote, setVotedBookId, error, isModalOpen, handleCloseModal }) => {
   return (
     <div className="border p-4 bg-white rounded shadow-md shadow-[#0191da] flex flex-col h-full"> {/* Flex container with full height */}
       <div className="h-60 overflow-hidden"> {/* Fixed height container for the image */}
@@ -23,11 +25,22 @@ const BookCard = ({ key, book, votedBookId, onVote, setVotedBookId, error }) => 
           Vote
         </button>
       )}
-      {error && (
-		  <p className="text-xs mt-3 text-left text-red-500"> 
-			Failed to register vote.
-		  </p>
-		)}
+      {isModalOpen && (
+		  <Modal onClose={handleCloseModal}>
+			<p className="text-md mt-3 text-left text-black">
+			  Failed to register vote.
+			</p>
+			<div className="mt-6 flex justify-center">
+			  <button
+				className="px-4 py-1 bg-red-500 text-white rounded"
+				onClick={handleCloseModal}
+			  >
+				Close
+			  </button>
+			</div>
+		  </Modal>
+	  )}
+
     </div>
   );
 };
